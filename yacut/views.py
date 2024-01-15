@@ -1,5 +1,4 @@
 import random
-import string
 from urllib.parse import urljoin
 
 from flask import Markup, flash, redirect, render_template, request
@@ -7,10 +6,11 @@ from flask import Markup, flash, redirect, render_template, request
 from . import app, db
 from .forms import URLForm
 from .models import URLMap
+from .constants import SYMBOLS, URL_LENGTH
 
 
 def get_unique_short_id():
-    random_url = ''.join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=6))
+    random_url = ''.join(random.choices(SYMBOLS, k=URL_LENGTH))
     return random_url
 
 
@@ -24,12 +24,10 @@ def index_view():
         if not short_name:
             short_name = get_unique_short_id()
 
-        """Проверка на наличие короткой ссылки в БД"""
         if URLMap.query.filter_by(short=short_name).count():
             flash('Предложенный вариант короткой ссылки уже существует.')
             return render_template('yacut.html', form=form)
 
-        """Проверка на наличие длинной ссылки в БД"""
         if URLMap.query.filter_by(original=original).count():
             flash('Предложенный вариант длинной ссылки уже существует.')
             return render_template('yacut.html', form=form)
